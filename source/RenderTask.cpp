@@ -9,7 +9,7 @@ uint32_t RenderTask::m_next_id = 0;
 
 RenderTask::RenderTask(void (*draw)(void* obj, void* context, DisplayList* dlist), 
 					   void* obj, void* context)
-	: mt::Task(TASK_TYPE)
+	: mt::Task(TASK_TYPE, true)
 	, m_id(m_next_id++)
 	, m_draw_cb(draw)
 	, m_obj(obj)

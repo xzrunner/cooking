@@ -17,16 +17,14 @@ public:
 		void* obj, void* context);
 
 	virtual void Run();
+	virtual bool Finish() { return false; }
 
 	uint32_t GetID() const { return m_id; }
 	
 	DisplayList& GetDisplayList() { return m_dlist; }
 
 public:
-	static const unsigned int TASK_TYPE = 0;
-
-private:
-	RenderTask(const RenderTask& other);
+	static const unsigned int TASK_TYPE = 1;
 
 private:
 	int m_id;
