@@ -3,6 +3,7 @@
 #include "cooking/DisplayList.h"
 #include "cooking/RecordedOp.h"
 #include "cooking/RenderTask.h"
+#include "cooking/Callback.h"
 
 namespace cooking
 {
@@ -25,12 +26,12 @@ void draw_quad(DisplayList* dl, uint32_t col_mul, uint32_t col_add, uint32_t col
 
 void add_task(RenderTask* task)
 {
-	ThreadPool::AddTask(task);
+	Callback::SubmitTask(task);
 }
 
 void flush()
 {
-	ThreadPool::Flush();
+	RenderTaskMgr::Instance()->Flush();
 }
 
 }
