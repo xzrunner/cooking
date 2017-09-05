@@ -1,11 +1,16 @@
 #include "cooking/RecordedOp.h"
 
+#include <unirender/UR_RenderContext.h>
 #include <shaderlab/ShaderMgr.h>
 #include <shaderlab/FilterShader.h>
 #include <shaderlab/Sprite2Shader.h>
 
 namespace cooking
 {
+
+/************************************************************************/
+/* status                                                               */
+/************************************************************************/
 
 static void 
 change_shader_relpay(void* op)
@@ -19,6 +24,17 @@ flush_shader_relpay(void* op)
 {
 	sl::ShaderMgr::Instance()->FlushShader();
 }
+
+static void 
+render_clear_relpay(void* op)
+{
+	RenderClearOp* rc = static_cast<RenderClearOp*>(op);
+	sl::ShaderMgr::Instance()->GetContext()->Clear(rc->color);
+}
+
+/************************************************************************/
+/* draw                                                                 */
+/************************************************************************/
 
 static void 
 draw_quad_relpay(void* op)
@@ -41,8 +57,11 @@ draw_quad_relpay(void* op)
 typedef void (*Replay)(void* op);
 Replay REPLAY_FUNCS[RecordedOpType::RECORDED_OP_COUNT] = 
 {
+	// status
 	change_shader_relpay,
 	flush_shader_relpay,
+	render_clear_relpay,
+	// draw
 	draw_quad_relpay,
 };
 

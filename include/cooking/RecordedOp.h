@@ -26,12 +26,19 @@ protected:
 
 enum RecordedOpType
 {
+	// status
 	CHANGE_SHADER_OP = 0,
 	FLUSH_SHADER_OP,
+	RENDER_CLEAR_OP,
+	// draw
 	DRAW_QUAD_OP,
 
 	RECORDED_OP_COUNT,
 };
+
+/************************************************************************/
+/* status                                                               */
+/************************************************************************/
 
 struct ChangeShaderOp : RecordedOp
 {
@@ -45,6 +52,17 @@ struct FlushShaderOp : RecordedOp
 	FlushShaderOp() 
 		: RecordedOp(FLUSH_SHADER_OP) {}
 }; // FlushShaderOp
+
+struct RenderClearOp : RecordedOp
+{
+	RenderClearOp(uint32_t color) 
+		: RecordedOp(RENDER_CLEAR_OP), color(color) {}
+	uint32_t color;
+}; // RenderClearOp
+
+/************************************************************************/
+/* draw                                                                 */
+/************************************************************************/
 
 struct DrawQuadOp : RecordedOp
 {
