@@ -69,6 +69,12 @@ LinearAllocator::~LinearAllocator()
 	}
 }
 
+void LinearAllocator::Rewind()
+{
+	m_curr_page = m_pages;
+	m_wasted_space = m_total_allocated;
+}
+
 void* LinearAllocator::AllocImpl(size_t size)
 {
 	size = ALIGN(size);
@@ -91,6 +97,10 @@ bool LinearAllocator::FitsInCurrPage(size_t size)
 void LinearAllocator::EnsureNext(size_t size)
 {
 	if (FitsInCurrPage(size)) {
+		return;
+	} else if (m_curr_page && m_curr_page->Next()) {
+		m_curr_page = m_curr_page->Next();
+		m_next = Start(m_curr_page);
 		return;
 	}
 

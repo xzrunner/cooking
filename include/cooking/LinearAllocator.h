@@ -19,9 +19,7 @@ public:
 		return AllocImpl(size);
 	}
 
-	void Rewind() {
-		// todo
-	}
+	void Rewind();
 
 private:
 	class Page;
