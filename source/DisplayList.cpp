@@ -20,4 +20,10 @@ void DisplayList::Replay()
 	}
 }
 
+void DisplayList::Clear()
+{
+	m_alloc.Rewind();
+	m_ops.clear();
+}
+
 }

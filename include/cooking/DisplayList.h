@@ -22,6 +22,8 @@ public:
 
 	void AddOp(RecordedOp* op) { m_ops.push_back(op); }
 
+	void Clear();
+
 private:
 	DisplayList(const DisplayList& other);
 	
