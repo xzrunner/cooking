@@ -1,8 +1,6 @@
 #ifndef _COOKING_RENDER_TASK_H_
 #define _COOKING_RENDER_TASK_H_
 
-#include "cooking/DisplayList.h"
-
 #include <CU_Singleton.h>
 #include <multitask/Task.h>
 
@@ -14,34 +12,17 @@ namespace cooking
 class RenderTask : public mt::Task
 {
 public:
-	RenderTask(const void* obj, void* context);
-
-	virtual void Run();
-
-	void Flush();
-
-	uint32_t GetID() const { return m_id; }
+	RenderTask();
 	
-	DisplayList& GetDisplayList() { return m_dlist; }
-
-	void Initialize(const void* obj, void* context);
-	void Terminate();
+	virtual void Run() = 0;
+	virtual void Flush() = 0;
+	
+	uint32_t GetID() const { return m_id; }
 
 	static void ResetNextID() { m_next_id = 0; }
 
-	static void RegisterCallback(void (*draw_cb)(const void* obj, void* context, DisplayList* dlist), 
-		void (*release_cb)(void* context));
-
-public:
-	static const unsigned int TASK_TYPE = 1;
-
 private:
 	int m_id;
-
-	DisplayList m_dlist;
-
-	const void* m_obj;
-	void* m_context;
 
 private:
 	static uint32_t m_next_id;
@@ -51,9 +32,9 @@ private:
 class RenderTaskMgr
 {
 public:
-	RenderTask* Fetch(const void* obj, void* context);
-
 	void AddResult(RenderTask* task);
+
+	void AddCount() { ++m_count; }
 
 	bool IsEmpty() { return m_count == 0; }
 
@@ -64,7 +45,6 @@ private:
 
 	int m_max_id;
 
-	mt::TaskQueue m_freelist;
 	mt::SafeTaskQueue m_result;
 
 	SINGLETON_DECLARATION(RenderTaskMgr)
