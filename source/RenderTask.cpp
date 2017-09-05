@@ -10,7 +10,8 @@ namespace cooking
 uint32_t RenderTask::m_next_id = 0;
 
 RenderTask::RenderTask()
-	: m_id(m_next_id++)
+	: mt::Task(0)
+	, m_id(m_next_id++)
 {
 }
 
