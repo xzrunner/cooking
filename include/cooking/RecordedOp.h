@@ -4,6 +4,7 @@
 #include "cooking/LinearAllocator.h"
 
 #include <stdint.h>
+#include <string.h>
 
 namespace cooking
 {

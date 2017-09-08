@@ -3,6 +3,8 @@
 #ifndef _COOKING_LINEAR_ALLOCATOR_H_
 #define _COOKING_LINEAR_ALLOCATOR_H_
 
+#include <stddef.h>
+
 namespace cooking
 {
 
