@@ -37,6 +37,11 @@ void RenderTaskMgr::AddResult(RenderTask* task)
 
 void RenderTaskMgr::Flush()
 {
+	if (m_result.Empty()) {
+		RenderTask::ResetNextID();
+		return;
+	}
+
 	RenderTask** tasks = new RenderTask*[m_max_id + 1];
 	memset(tasks, 0, sizeof(tasks));
 	while (mt::Task* t = m_result.TryPop())
