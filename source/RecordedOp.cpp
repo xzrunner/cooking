@@ -55,7 +55,7 @@ draw_quad_relpay(void* op)
 }
 
 typedef void (*Replay)(void* op);
-Replay REPLAY_FUNCS[RecordedOpType::RECORDED_OP_COUNT] = 
+Replay REPLAY_FUNCS[RECORDED_OP_COUNT] = 
 {
 	// status
 	change_shader_relpay,

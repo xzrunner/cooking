@@ -7,6 +7,11 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := cooking
 
 LOCAL_C_INCLUDES  := \
+	${MULTITASK_SRC_PATH}/include \
+	${COOKING_SRC_PATH}/include \
+	${UNIRENDER_SRC_PATH}/include \
+	${SHADERLAB_SRC_PATH}/include \
+	${CU_SRC_PATH} \
 
 LOCAL_SRC_FILES := \
 	$(subst $(LOCAL_PATH)/,,$(shell find $(LOCAL_PATH) -name "*.cpp" -print)) \
