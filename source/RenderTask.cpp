@@ -1,5 +1,7 @@
 #include "cooking/RenderTask.h"
 
+#include <string.h>
+
 namespace cooking
 {
 
