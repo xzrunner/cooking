@@ -1,12 +1,19 @@
 #include "cooking/DisplayList.h"
-#include "cooking/RecordedOp.h"
-#include "cooking/RecordedOp.h"
+#include "cooking/DisplayOp.h"
+#include "cooking/ReplayOpBuilder.h"
 
 namespace cooking
 {
 
-DisplayList::DisplayList()
+DisplayList::DisplayList(mm::FreelistAllocator* freelist_alloc,
+	                     int capacity)
+	: m_alloc(freelist_alloc)
+	, m_std_alloc(m_alloc)
+	, m_ops(m_std_alloc)
 {
+	if (capacity > 0) {
+		m_ops.reserve(capacity);
+	}
 }
 
 DisplayList::~DisplayList()
@@ -15,15 +22,7 @@ DisplayList::~DisplayList()
 
 void DisplayList::Replay()
 {
-	for (int i = 0, n = m_ops.size(); i < n; ++i) {
-		m_ops[i]->Replay();
-	}
-}
-
-void DisplayList::Clear()
-{
-	m_alloc.Rewind();
-	m_ops.clear();
+	ReplayOpBuilder::Replay(m_ops);
 }
 
 }

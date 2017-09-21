@@ -1,5 +1,7 @@
 #include "cooking/Callback.h"
 
+#include "cooking/DisplayOp.h"
+
 namespace cooking
 {
 

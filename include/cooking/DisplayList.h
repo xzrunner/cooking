@@ -1,36 +1,32 @@
 #ifndef _COOKING_DISPLAY_LIST_H_
 #define _COOKING_DISPLAY_LIST_H_
 
-#include "cooking/LinearAllocator.h"
-
-#include <vector>
+#include <memmgr/LinearAllocator.h>
 
 namespace cooking
 {
 
-struct RecordedOp;
+struct DisplayOp;
 
 class DisplayList
 {
 public:
-	DisplayList();
+	DisplayList(mm::FreelistAllocator* freelist_alloc = nullptr, int capacity = -1);
+	DisplayList(const DisplayList&) = delete;
+	DisplayList& operator = (const DisplayList&) = delete;
 	~DisplayList();
 
 	void Replay();
 
-	LinearAllocator& GetAlloc() { return m_alloc; }
-
-	void AddOp(RecordedOp* op) { m_ops.push_back(op); }
-
-	void Clear();
-
-private:
-	DisplayList(const DisplayList& other);
+	void AddOp(DisplayOp* op) { m_ops.push_back(op); }
 	
-private:
-	LinearAllocator m_alloc;
+	mm::LinearAllocator& GetAlloc() { return m_alloc; }
 
-	std::vector<RecordedOp*> m_ops;
+private:
+	mm::LinearAllocator m_alloc;
+	mm::LinearStdAllocator<void*> m_std_alloc;
+
+	mm::LsaVector<DisplayOp*> m_ops;
 
 }; // DisplayList
 
