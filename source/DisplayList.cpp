@@ -8,8 +8,6 @@ namespace cooking
 DisplayList::DisplayList(mm::FreelistAllocator* freelist_alloc,
 	                     int capacity)
 	: m_alloc(freelist_alloc)
-	, m_std_alloc(m_alloc)
-	, m_ops(m_std_alloc)
 {
 	if (capacity > 0) {
 		m_ops.reserve(capacity);
@@ -20,9 +18,37 @@ DisplayList::~DisplayList()
 {
 }
 
-void DisplayList::Replay()
+DisplayList& DisplayList::operator = (const DisplayList& dlist)
 {
-	ReplayOpBuilder::Replay(m_ops);
+	if (this == &dlist) {
+		return *this;
+	}
+
+	m_alloc.~LinearAllocator();
+	m_alloc = dlist.m_alloc;
+
+	m_ops = dlist.m_ops;
+
+	return *this;
+}
+
+DisplayList& DisplayList::operator = (const DisplayList&& dlist)
+{
+	if (this == &dlist) {
+		return *this;
+	}
+
+	m_alloc.~LinearAllocator();
+	m_alloc = std::move(dlist.m_alloc);
+
+	m_ops = std::move(dlist.m_ops);
+
+	return *this;
+}
+
+void DisplayList::Replay(int begin, int end)
+{
+	ReplayOpBuilder::Replay(m_ops, begin, end);
 }
 
 }
