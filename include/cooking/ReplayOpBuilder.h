@@ -3,8 +3,6 @@
 
 #include "cooking/DisplayOp.h"
 
-#include <memmgr/LinearAllocator.h>
-
 #include <vector>
 
 namespace cooking
@@ -13,7 +11,7 @@ namespace cooking
 class ReplayOpBuilder
 {
 public:
-	static void Replay(const mm::LsaVector<DisplayOp*>& ops);
+	static void Replay(const std::vector<DisplayOp*>& ops, int begin, int end);
 
 private:
 #define X(Type) static void Replay##Type(const Type& op);

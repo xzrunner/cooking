@@ -5,17 +5,39 @@
 #include <shaderlab/FilterShader.h>
 #include <shaderlab/Sprite2Shader.h>
 
+#include <algorithm>
+
 namespace cooking
 {
 
 #define OP_RECEIVER(Type) \
         [](const DisplayOp& op) { ReplayOpBuilder::Replay##Type(static_cast<const Type&>(op)); },
-void ReplayOpBuilder::Replay(const mm::LsaVector<DisplayOp*>& ops)
+void ReplayOpBuilder::Replay(const std::vector<DisplayOp*>& ops, int begin, int end)
 {
 	typedef void(*OpDispatcher) (const DisplayOp& op);
 	static OpDispatcher receivers[] = BUILD_OP_LUT(OP_RECEIVER);
 
-	for (auto& op : ops) {
+	if (ops.empty()) {
+		return;
+	}
+
+	int sz = ops.size();
+	if (begin < 0) {
+		begin = 0;
+	}
+	if (end < 0) {
+		end = sz;
+	}
+	begin = std::min(begin, sz);
+	end = std::min(end, sz);
+
+	if (begin >= end || begin >= sz) {
+		return;
+	}
+
+	DisplayOp*const* ptr = &ops[begin];
+	for (int i = 0, n = end - begin; i < n; ++i, ++ptr) {
+		DisplayOp* op = *ptr;
 		receivers[op->id](*op);
 	}
 }
