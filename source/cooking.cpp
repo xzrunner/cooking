@@ -14,12 +14,12 @@ namespace cooking
 
 void change_shader(DisplayList* dl, int shader)
 {
-	dl->AddOp(dl->GetAlloc().create_trivial<ChangeShaderOp>(shader));
+	new (dl->AddOp(sizeof(ChangeShaderOp))) ChangeShaderOp(shader);
 }
 
 void flush_shader(DisplayList* dl)
 {
-	dl->AddOp(dl->GetAlloc().create_trivial<FlushShaderOp>());
+	new (dl->AddOp(sizeof(FlushShaderOp))) FlushShaderOp();
 }
 
 /************************************************************************/
@@ -29,8 +29,8 @@ void flush_shader(DisplayList* dl)
 void draw_quad(DisplayList* dl, uint32_t col_mul, uint32_t col_add, uint32_t col_rmap, 
 			   uint32_t col_gmap, uint32_t col_bmap, const float* vertices, const float* texcoords, int tex_id)
 {
-	dl->AddOp(dl->GetAlloc().create_trivial<DrawQuadOp>(
-		col_mul, col_add, col_rmap, col_gmap, col_bmap, vertices, texcoords, tex_id));
+	new (dl->AddOp(sizeof(DrawQuadOp))) DrawQuadOp(
+		col_mul, col_add, col_rmap, col_gmap, col_bmap, vertices, texcoords, tex_id);
 }
 
 }
