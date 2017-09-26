@@ -265,7 +265,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 		DisplayOp* s_op = reinterpret_cast<DisplayOp*>(reinterpret_cast<uint8_t*>(src_b) + src_b_idx[src_op_idx + 1]);
 		size_t sz = src_b_idx[src_op_idx] - src_b_idx[src_op_idx + 1];
 
-		if (dst_space < sz + sizeof(uint16_t)) 
+		if (static_cast<size_t>(dst_space) < sz + sizeof(uint16_t))
 		{
 			OpsBlock* new_b = Alloc();
 
@@ -280,7 +280,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 			dst_space = dst_end_start - sizeof(*m_ops_tail) - sizeof(uint16_t) * dst_tot;
 		}
 
-		assert(dst_space >= sz + sizeof(uint16_t));
+		assert(static_cast<size_t>(dst_space) >= sz + sizeof(uint16_t));
 		
 		++dst_data[0];
 		dst_tot = dst_data[0];

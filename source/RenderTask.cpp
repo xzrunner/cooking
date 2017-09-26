@@ -32,7 +32,7 @@ void RenderTaskMgr::AddResult(RenderTask* task)
 {
 	m_result.Push(task);
 
-	if (task->GetID() > m_max_id) {
+	if (task->GetID() > static_cast<uint32_t>(m_max_id)) {
 		m_max_id = task->GetID();
 	}
 }
