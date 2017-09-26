@@ -1,6 +1,8 @@
 #ifndef _COOKING_DISPLAY_LIST_H_
 #define _COOKING_DISPLAY_LIST_H_
 
+#include <stddef.h>
+
 #include <assert.h>
 
 namespace cooking
