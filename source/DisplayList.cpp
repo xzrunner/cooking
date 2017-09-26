@@ -75,17 +75,6 @@ public:
 		return data[0];
 	}
 
-	DisplayOp* operator [] (size_t idx)
-	{
-		if (idx < 0 || idx >= Size()) {
-			return nullptr;
-		}
-
-		const uint16_t* data = reinterpret_cast<const uint16_t*>(this + 1);
-		const uint16_t* index = data + 1;
-		return reinterpret_cast<DisplayOp*>(reinterpret_cast<uint8_t*>(this) + index[idx + 1]);
-	}
-
 	void Clear()
 	{
 		uint16_t* data = reinterpret_cast<uint16_t*>(this + 1);
@@ -162,11 +151,12 @@ void DisplayList::Replay(int begin, int end)
 	}
 	assert(ptr_b_start + static_cast<int>(ptr_b_sz) > begin && begin >= ptr_b_start);
 
+	const uint16_t* ptr_b_idx = reinterpret_cast<const uint16_t*>(ptr_b + 1) + 1;
 	int ptr_op_idx = begin - ptr_b_start;
 	int left = end - begin;
 	while (true)
 	{
-		DisplayOp* s_op = (*ptr_b)[ptr_op_idx];
+		DisplayOp* s_op = reinterpret_cast<DisplayOp*>(reinterpret_cast<uint8_t*>(ptr_b) + ptr_b_idx[ptr_op_idx + 1]);
 		DisplayOpFunc::Replay(s_op);
 		if (--left == 0) {
 			break;
@@ -176,6 +166,7 @@ void DisplayList::Replay(int begin, int end)
 				ptr_b = ptr_b->m_next;
 				ptr_op_idx = 0;
 				ptr_b_sz = ptr_b->Size();
+				ptr_b_idx = reinterpret_cast<const uint16_t*>(ptr_b + 1) + 1;
 			}
 		}
 	}
@@ -243,33 +234,72 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 	}
 	assert(begin >= 0 && begin < sz && end >= 0 && end <= sz && begin < end);
 
-	OpsBlock* ptr_b = src.m_ops_head;
-	assert(ptr_b);
-	int ptr_b_start = 0;
-	size_t ptr_b_sz = ptr_b->Size();
-	while (ptr_b_start + static_cast<int>(ptr_b_sz) <= begin) {
-		ptr_b = ptr_b->m_next;
-		ptr_b_start += ptr_b_sz;
-		ptr_b_sz = ptr_b->Size();
+	OpsBlock* src_b = src.m_ops_head;
+	assert(src_b);
+	int src_b_start = 0;
+	size_t src_b_sz = src_b->Size();
+	while (src_b_start + static_cast<int>(src_b_sz) <= begin) {
+		src_b = src_b->m_next;
+		src_b_start += src_b_sz;
+		src_b_sz = src_b->Size();
 	}
-	assert(ptr_b_start + static_cast<int>(ptr_b_sz) > begin && begin >= ptr_b_start);
+	assert(src_b_start + static_cast<int>(src_b_sz) > begin && begin >= src_b_start);
 
-	int ptr_op_idx = begin - ptr_b_start;
+	if (!m_ops_head) {
+		assert(!m_ops_tail);
+		OpsBlock* b = Alloc();
+		m_ops_head = m_ops_tail = b;
+	}
+	assert(m_ops_tail);
+	uint16_t* dst_data = reinterpret_cast<uint16_t*>(m_ops_tail + 1);
+	int dst_tot = dst_data[0];
+	uint16_t* dst_b_idx = dst_data + 1;
+	int dst_end_start = dst_b_idx[dst_tot];
+	int dst_space = dst_end_start - sizeof(*m_ops_tail) - sizeof(uint16_t) * dst_tot;
+
+	const uint16_t* src_b_idx = reinterpret_cast<const uint16_t*>(src_b + 1) + 1;
+	int src_op_idx = begin - src_b_start;
 	int left = end - begin;
 	while (true)
 	{
-		DisplayOp* s_op = (*ptr_b)[ptr_op_idx];
-		size_t sz = DisplayOpFunc::Size(*s_op);
-		void* d_op = AddOp(sz);
-		memcpy(d_op, s_op, sz);
+		DisplayOp* s_op = reinterpret_cast<DisplayOp*>(reinterpret_cast<uint8_t*>(src_b) + src_b_idx[src_op_idx + 1]);
+		size_t sz = src_b_idx[src_op_idx] - src_b_idx[src_op_idx + 1];
+
+		if (dst_space < sz + sizeof(uint16_t)) 
+		{
+			OpsBlock* new_b = Alloc();
+
+			m_ops_tail->m_next = new_b;
+			m_ops_tail = new_b;	
+
+			dst_data = reinterpret_cast<uint16_t*>(m_ops_tail + 1);
+			dst_tot = dst_data[0];
+			assert(dst_tot == 0);
+			dst_b_idx = dst_data + 1;
+			dst_end_start = dst_b_idx[dst_tot];
+			dst_space = dst_end_start - sizeof(*m_ops_tail) - sizeof(uint16_t) * dst_tot;
+		}
+
+		assert(dst_space >= sz + sizeof(uint16_t));
+		
+		++dst_data[0];
+		dst_tot = dst_data[0];
+		dst_end_start -= static_cast<uint16_t>(sz);
+		dst_b_idx[dst_tot] = dst_end_start;
+		dst_space -= (sz + sizeof(uint16_t));
+
+		memcpy(reinterpret_cast<uint8_t*>(m_ops_tail) + dst_end_start, s_op, sz);
+		++m_ops_sz;
+
 		if (--left == 0) {
 			break;
 		} else {
-			++ptr_op_idx;
-			if (ptr_op_idx == ptr_b_sz) {
-				ptr_b = ptr_b->m_next;
-				ptr_b_sz = ptr_b->Size();
-				ptr_op_idx = 0;
+			++src_op_idx;
+			if (src_op_idx == src_b_sz) {
+				src_b = src_b->m_next;
+				src_b_sz = src_b->Size();
+				src_op_idx = 0;
+				src_b_idx = reinterpret_cast<const uint16_t*>(src_b + 1) + 1;
 			}
 		}
 	}
