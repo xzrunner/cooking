@@ -1,4 +1,4 @@
-#include "cooking/ReplayOpBuilder.h"
+#include "cooking/DisplayOpFunc.h"
 
 #include <unirender/UR_RenderContext.h>
 #include <shaderlab/ShaderMgr.h>
@@ -11,52 +11,41 @@ namespace cooking
 {
 
 #define OP_RECEIVER(Type) \
-        [](const DisplayOp& op) { ReplayOpBuilder::Replay##Type(static_cast<const Type&>(op)); },
-void ReplayOpBuilder::Replay(const std::vector<DisplayOp*>& ops, int begin, int end)
+        [](const DisplayOp& op) { DisplayOpFunc::Replay##Type(static_cast<const Type&>(op)); },
+void DisplayOpFunc::Replay(const DisplayOp* op)
 {
 	typedef void(*OpDispatcher) (const DisplayOp& op);
 	static OpDispatcher receivers[] = BUILD_OP_LUT(OP_RECEIVER);
 
-	if (ops.empty()) {
-		return;
-	}
+	receivers[op->id](*op);
+}
 
-	int sz = ops.size();
-	if (begin < 0) {
-		begin = 0;
+#define OP_SIZE(Type) \
+		case DispalyOpId::Type: return sizeof(Type);
+size_t DisplayOpFunc::Size(const DisplayOp& op)
+{
+	switch (op.id)
+	{
+		MAP_OPS_BASED_ON_TYPE(OP_SIZE)
 	}
-	if (end < 0) {
-		end = sz;
-	}
-	begin = std::min(begin, sz);
-	end = std::min(end, sz);
-
-	if (begin >= end || begin >= sz) {
-		return;
-	}
-
-	DisplayOp*const* ptr = &ops[begin];
-	for (int i = 0, n = end - begin; i < n; ++i, ++ptr) {
-		DisplayOp* op = *ptr;
-		receivers[op->id](*op);
-	}
+	return 0;
 }
 
 /************************************************************************/
 /* status                                                               */
 /************************************************************************/
 
-void ReplayOpBuilder::ReplayChangeShaderOp(const ChangeShaderOp& op)
+void DisplayOpFunc::ReplayChangeShaderOp(const ChangeShaderOp& op)
 {
 	sl::ShaderMgr::Instance()->SetShader(sl::ShaderType(op.shader));
 }
 
-void ReplayOpBuilder::ReplayFlushShaderOp(const FlushShaderOp& op)
+void DisplayOpFunc::ReplayFlushShaderOp(const FlushShaderOp& op)
 {
 	sl::ShaderMgr::Instance()->FlushShader();
 }
 
-void ReplayOpBuilder::ReplayRenderClearOp(const RenderClearOp& op)
+void DisplayOpFunc::ReplayRenderClearOp(const RenderClearOp& op)
 {
 	sl::ShaderMgr::Instance()->GetContext()->Clear(op.color);
 }
@@ -65,7 +54,7 @@ void ReplayOpBuilder::ReplayRenderClearOp(const RenderClearOp& op)
 /* draw                                                                 */
 /************************************************************************/
 
-void ReplayOpBuilder::ReplayDrawQuadOp(const DrawQuadOp& op)
+void DisplayOpFunc::ReplayDrawQuadOp(const DrawQuadOp& op)
 {
 	sl::ShaderMgr* mgr = sl::ShaderMgr::Instance();
 	if (mgr->GetShaderType() == sl::FILTER) {
