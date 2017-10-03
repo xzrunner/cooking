@@ -1,6 +1,6 @@
 //#include "c_wrap_cooking.h"
 
-#include "cooking/RenderTask.h"
+//#include "cooking/RenderTask.h"
 
 namespace cooking
 {
@@ -8,7 +8,7 @@ namespace cooking
 extern "C"
 void cooking_flush()
 {
-	RenderTaskMgr::Instance()->Flush();
+//	RenderTaskMgr::Instance()->Flush();
 }
 
 }
