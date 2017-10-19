@@ -1,7 +1,7 @@
 #ifndef _COOKING_DISPLAY_OP_H_
 #define _COOKING_DISPLAY_OP_H_
 
-#include <string>
+#include <cstdint>
 
 namespace cooking
 {
