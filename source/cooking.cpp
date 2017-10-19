@@ -5,6 +5,8 @@
 #include "cooking/RenderTask.h"
 #include "cooking/Callback.h"
 
+#include <memory>
+
 namespace cooking
 {
 
