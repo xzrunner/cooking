@@ -2,6 +2,7 @@
 #define _COOKING_DISPLAY_OP_H_
 
 #include <cstdint>
+#include <cstring>
 
 namespace cooking
 {
