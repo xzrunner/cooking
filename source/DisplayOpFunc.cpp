@@ -1,6 +1,6 @@
 #include "cooking/DisplayOpFunc.h"
 
-#include <unirender/UR_RenderContext.h>
+#include <unirender/RenderContext.h>
 #include <shaderlab/ShaderMgr.h>
 #include <shaderlab/FilterShader.h>
 #include <shaderlab/Sprite2Shader.h>
