@@ -124,7 +124,7 @@ DisplayList& DisplayList::operator = (const DisplayList& dlist)
 
 void DisplayList::Replay(int begin, int end)
 {
-	if (begin == end || m_ops_sz == 0) {
+	if (m_ops_sz == 0) {
 		return;
 	}
 	if (begin < 0) {
