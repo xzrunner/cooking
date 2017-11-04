@@ -1,5 +1,5 @@
-#ifndef _COOKING_H_
-#define _COOKING_H_
+#ifndef _COOKING_FACADE_H_
+#define _COOKING_FACADE_H_
 
 #include <stdint.h>
 
@@ -26,4 +26,4 @@ void draw_quad(DisplayList* dl, uint32_t col_mul, uint32_t col_add, uint32_t col
 
 }
 
-#endif // _COOKING_H_
+#endif // _COOKING_FACADE_H_
