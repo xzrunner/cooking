@@ -76,20 +76,20 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\include\cooking.h" />
     <ClInclude Include="..\..\..\include\cooking\Callback.h" />
     <ClInclude Include="..\..\..\include\cooking\DisplayList.h" />
     <ClInclude Include="..\..\..\include\cooking\DisplayOp.h" />
     <ClInclude Include="..\..\..\include\cooking\DisplayOpFunc.h" />
+    <ClInclude Include="..\..\..\include\cooking\Facade.h" />
     <ClInclude Include="..\..\..\include\cooking\RenderTask.h" />
     <ClInclude Include="..\..\..\include\c_wrap_cooking.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\Callback.cpp" />
-    <ClCompile Include="..\..\..\source\cooking.cpp" />
     <ClCompile Include="..\..\..\source\c_wrap_cooking.cpp" />
     <ClCompile Include="..\..\..\source\DisplayList.cpp" />
     <ClCompile Include="..\..\..\source\DisplayOpFunc.cpp" />
+    <ClCompile Include="..\..\..\source\Facade.cpp" />
     <ClCompile Include="..\..\..\source\RenderTask.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
