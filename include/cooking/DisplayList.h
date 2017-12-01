@@ -31,6 +31,8 @@ public:
 
 	int Size() const { return m_ops_sz; }
 
+	void Clear() { ClearOps(); }
+
 private:
 	void ClearOps();
 
