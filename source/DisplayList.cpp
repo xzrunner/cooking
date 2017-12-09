@@ -91,8 +91,6 @@ private:
 
 }; // DisplayOpsBlock
 
-DisplayList::OpsBlock* DisplayList::m_freelist = nullptr;
-
 DisplayList::DisplayList()
 	: m_ops_head(nullptr)
 	, m_ops_tail(nullptr)
@@ -144,10 +142,13 @@ void DisplayList::Replay(int begin, int end)
 	assert(ptr_b);
 	int ptr_b_start = 0;
 	size_t ptr_b_sz = ptr_b->Size();
+	assert(ptr_b_sz > 0);
 	while (ptr_b_start + static_cast<int>(ptr_b_sz) <= begin) {
 		ptr_b = ptr_b->m_next;
+		assert(ptr_b);
 		ptr_b_start += ptr_b_sz;
 		ptr_b_sz = ptr_b->Size();
+		assert(ptr_b_sz > 0);
 	}
 	assert(ptr_b_start + static_cast<int>(ptr_b_sz) > begin && begin >= ptr_b_start);
 
@@ -164,8 +165,10 @@ void DisplayList::Replay(int begin, int end)
 			++ptr_op_idx;
 			if (ptr_op_idx == ptr_b_sz) {
 				ptr_b = ptr_b->m_next;
+				assert(ptr_b);
 				ptr_op_idx = 0;
 				ptr_b_sz = ptr_b->Size();
+				assert(ptr_b_sz > 0);
 				ptr_b_idx = reinterpret_cast<const uint16_t*>(ptr_b + 1) + 1;
 			}
 		}
@@ -177,7 +180,7 @@ void DisplayList::AddOp(DisplayOp* op)
 	if (!m_ops_head) 
 	{
 		assert(!m_ops_tail);
-		OpsBlock* b = Alloc();
+		OpsBlock* b = m_alloc.Alloc();
 		m_ops_head = m_ops_tail = b;
 		m_ops_head->AddOp(op);
 	} 
@@ -185,7 +188,8 @@ void DisplayList::AddOp(DisplayOp* op)
 	{
 		if (!m_ops_tail->AddOp(op)) 
 		{
-			OpsBlock* new_b = Alloc();
+			OpsBlock* new_b = m_alloc.Alloc();
+			assert(m_ops_tail != new_b);
 			m_ops_tail->m_next = new_b;
 			m_ops_tail = new_b;
 			m_ops_tail->AddOp(op);
@@ -200,7 +204,7 @@ void* DisplayList::AddOp(size_t op_sz)
 	if (!m_ops_head)
 	{
 		assert(!m_ops_tail);
-		OpsBlock* b = Alloc();
+		OpsBlock* b = m_alloc.Alloc();
 		m_ops_head = m_ops_tail = b;
 		ret = m_ops_head->AddOp(op_sz);
 	}
@@ -209,7 +213,8 @@ void* DisplayList::AddOp(size_t op_sz)
 		ret = m_ops_tail->AddOp(op_sz);
 		if (!ret)
 		{
-			OpsBlock* new_b = Alloc();
+			OpsBlock* new_b = m_alloc.Alloc();
+			assert(m_ops_tail != new_b);
 			m_ops_tail->m_next = new_b;
 			m_ops_tail = new_b;
 			ret = m_ops_tail->AddOp(op_sz);
@@ -247,7 +252,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 
 	if (!m_ops_head) {
 		assert(!m_ops_tail);
-		OpsBlock* b = Alloc();
+		OpsBlock* b = m_alloc.Alloc();
 		m_ops_head = m_ops_tail = b;
 	}
 	assert(m_ops_tail);
@@ -267,8 +272,9 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 
 		if (static_cast<size_t>(dst_space) < sz + sizeof(uint16_t))
 		{
-			OpsBlock* new_b = Alloc();
+			OpsBlock* new_b = m_alloc.Alloc();
 
+			assert(m_ops_tail != new_b);
 			m_ops_tail->m_next = new_b;
 			m_ops_tail = new_b;	
 
@@ -310,7 +316,7 @@ void DisplayList::ClearOps()
 	OpsBlock* b = m_ops_head;
 	while (b) {
 		OpsBlock* next = b->m_next;
-		Free(b);
+		m_alloc.Free(b);
 		b = next;
 	}
 	m_ops_head = nullptr;
@@ -318,26 +324,41 @@ void DisplayList::ClearOps()
 	m_ops_sz = 0;
 }
 
-DisplayList::OpsBlock* DisplayList::Alloc()
+/************************************************************************/
+/* class DisplayList::Allocator                                         */
+/************************************************************************/
+
+DisplayList::OpsBlock* DisplayList::Allocator::Alloc()
 {
 	OpsBlock* ret = nullptr;
-	if (m_freelist) {
-		ret = m_freelist;
-		m_freelist = m_freelist->m_next;
+
+	auto itr = m_map2freelist.find(std::this_thread::get_id());
+	if (itr != m_map2freelist.end()) {
+		ret = itr->second;
+		itr->second = ret->m_next;
 		ret->m_next = nullptr;
 	} else {
 		void* ptr = malloc(OpsBlock::BLOCK_SZ);
 		ret = new (ptr) OpsBlock();
 		ret->m_next = nullptr;
 	}
+
 	return ret;
 }
 
-void DisplayList::Free(OpsBlock* b)
+void DisplayList::Allocator::Free(DisplayList::OpsBlock* block)
 {
-	b->Clear();
-	b->m_next = m_freelist;
-	m_freelist = b;
+	block->Clear();
+
+	auto id = std::this_thread::get_id();
+	auto itr = m_map2freelist.find(id);
+	if (itr != m_map2freelist.end()) {
+		assert(block != itr->second);
+		block->m_next = itr->second;
+		itr->second = block;
+	} else {
+		m_map2freelist.insert(std::make_pair(id, nullptr));
+	}
 }
 
 }

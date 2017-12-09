@@ -1,8 +1,11 @@
 #ifndef _COOKING_DISPLAY_LIST_H_
 #define _COOKING_DISPLAY_LIST_H_
 
-#include <stddef.h>
+#include <thread>
+#include <atomic>
+#include <unordered_map>
 
+#include <stddef.h>
 #include <assert.h>
 
 namespace cooking
@@ -37,15 +40,25 @@ private:
 	void ClearOps();
 
 	class OpsBlock;
+	class Allocator
+	{
+	public:
+		OpsBlock* Alloc();
+		void Free(OpsBlock*);
 
-	static OpsBlock* Alloc();
-	static void Free(OpsBlock*);
+	private:
+		OpsBlock* GetFreelist();
+
+	private:
+		std::unordered_map<std::thread::id, OpsBlock*> m_map2freelist;
+
+	}; // Allocator
 
 private:
 	OpsBlock *m_ops_head, *m_ops_tail;
 	int m_ops_sz;
 
-	static OpsBlock* m_freelist;
+	Allocator m_alloc;
 
 }; // DisplayList
 
