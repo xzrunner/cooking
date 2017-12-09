@@ -34,10 +34,10 @@ public:
 
 	int Size() const { return m_ops_sz; }
 
-	void Clear() { ClearOps(); }
+	void Clear(std::thread::id thread_id);
 
 private:
-	void ClearOps();
+	void ClearOps(int freelist_idx = -1);
 
 	class OpsBlock;
 	class Allocator
@@ -46,11 +46,16 @@ private:
 		OpsBlock* Alloc();
 		void Free(OpsBlock*);
 
-	private:
-		OpsBlock* GetFreelist();
+		OpsBlock* Alloc(int freelist_idx);
+		void Free(int freelist_idx, OpsBlock* block);
 
 	private:
-		std::unordered_map<std::thread::id, OpsBlock*> m_map2freelist;
+		int QueryFreelistIdx(std::thread::id thread_id) const;
+
+	private:
+		std::vector<std::pair<std::thread::id, OpsBlock*>> m_freelists;
+
+		friend class DisplayList;
 
 	}; // Allocator
 

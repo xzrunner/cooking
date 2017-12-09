@@ -311,12 +311,22 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 	}
 }
 
-void DisplayList::ClearOps()
+void DisplayList::Clear(std::thread::id thread_id) 
+{
+	int freelist_idx = m_alloc.QueryFreelistIdx(thread_id);
+	if (freelist_idx < 0) {
+		freelist_idx = m_alloc.m_freelists.size();
+		m_alloc.m_freelists.push_back(std::make_pair(thread_id, nullptr));
+	}
+	ClearOps(freelist_idx);
+}
+
+void DisplayList::ClearOps(int freelist_idx)
 {
 	OpsBlock* b = m_ops_head;
 	while (b) {
 		OpsBlock* next = b->m_next;
-		m_alloc.Free(b);
+		m_alloc.Free(freelist_idx, b);
 		b = next;
 	}
 	m_ops_head = nullptr;
@@ -330,12 +340,31 @@ void DisplayList::ClearOps()
 
 DisplayList::OpsBlock* DisplayList::Allocator::Alloc()
 {
+	return Alloc(QueryFreelistIdx(std::this_thread::get_id()));
+}
+
+void DisplayList::Allocator::Free(DisplayList::OpsBlock* block)
+{
+	Free(QueryFreelistIdx(std::this_thread::get_id()), block);
+}
+
+DisplayList::OpsBlock* DisplayList::Allocator::Alloc(int freelist_idx)
+{
+	if (freelist_idx < 0) {
+		void* ptr = malloc(OpsBlock::BLOCK_SZ);
+		OpsBlock* ret = new (ptr) OpsBlock();
+		ret->m_next = nullptr;
+		return ret;
+	}
+
+	assert(freelist_idx >= 0 && freelist_idx < static_cast<int>(m_freelists.size()));
+
 	OpsBlock* ret = nullptr;
 
-	auto itr = m_map2freelist.find(std::this_thread::get_id());
-	if (itr != m_map2freelist.end()) {
-		ret = itr->second;
-		itr->second = ret->m_next;
+	auto& freelist = m_freelists[freelist_idx].second;
+	if (freelist) {
+		ret = freelist;
+		freelist = ret->m_next;
 		ret->m_next = nullptr;
 	} else {
 		void* ptr = malloc(OpsBlock::BLOCK_SZ);
@@ -346,19 +375,29 @@ DisplayList::OpsBlock* DisplayList::Allocator::Alloc()
 	return ret;
 }
 
-void DisplayList::Allocator::Free(DisplayList::OpsBlock* block)
+void DisplayList::Allocator::Free(int freelist_idx, OpsBlock* block)
 {
 	block->Clear();
 
-	auto id = std::this_thread::get_id();
-	auto itr = m_map2freelist.find(id);
-	if (itr != m_map2freelist.end()) {
-		assert(block != itr->second);
-		block->m_next = itr->second;
-		itr->second = block;
+	assert(freelist_idx >= 0 && freelist_idx < static_cast<int>(m_freelists.size()));
+	auto& freelist = m_freelists[freelist_idx].second;
+	if (freelist) {
+		assert(block != freelist);
+		block->m_next = freelist;
 	} else {
-		m_map2freelist.insert(std::make_pair(id, nullptr));
+		block->m_next = nullptr;
 	}
+	freelist = block;
+}
+
+int DisplayList::Allocator::QueryFreelistIdx(std::thread::id thread_id) const
+{
+	for (int i = 0, n = m_freelists.size(); i < n; ++i) {
+		if (thread_id == m_freelists[i].first) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 }
