@@ -1,6 +1,8 @@
 #include "cooking/DisplayList.h"
 #include "cooking/DisplayOp.h"
 #include "cooking/DisplayOpFunc.h"
+#include "cooking/DisplayOpBlock.h"
+#include "cooking/DisplayOpAllocator.h"
 
 #include <algorithm>
 
@@ -9,92 +11,11 @@
 namespace cooking
 {
 
-class DisplayList::OpsBlock
-{
-public:
-
-	OpsBlock() 
-		: m_next(nullptr) 
-	{
-		Clear();
-	}
-
-	bool AddOp(DisplayOp* op)
-	{
-		uint16_t* data = reinterpret_cast<uint16_t*>(this + 1);
-		uint16_t tot = data[0];
-		uint16_t* index = data + 1;
-		uint16_t end_start = index[tot];
-
-		size_t op_sz = DisplayOpFunc::Size(*op);
-		assert(op_sz < BLOCK_SZ - sizeof(*this) - sizeof(uint16_t) * 3);
-		int space = end_start - sizeof(*this) - sizeof(uint16_t) * tot;
-		if (static_cast<size_t>(space) < op_sz + sizeof(uint16_t)) {
-			return false;
-		}
-
-		// add tot count
-		++data[0];
-
-		// new pos
-		end_start -= static_cast<uint16_t>(op_sz);
-		index[tot + 1] = end_start;
-
-		// new data
-		memcpy(reinterpret_cast<uint8_t*>(this) + end_start, op, op_sz);
-
-		return true;
-	}
-
-	void* AddOp(size_t op_sz)
-	{
-		uint16_t* data = reinterpret_cast<uint16_t*>(this + 1);
-		uint16_t tot = data[0];
-		uint16_t* index = data + 1;
-		uint16_t end_start = index[tot];
-
-		assert(op_sz < BLOCK_SZ - sizeof(*this) - sizeof(uint16_t) * 3);
-		int space = end_start - sizeof(*this) - sizeof(uint16_t) * tot;
-		if (static_cast<size_t>(space) < op_sz + sizeof(uint16_t)) {
-			return nullptr;
-		}
-
-		// add tot count
-		++data[0];
-
-		// new pos
-		end_start -= static_cast<uint16_t>(op_sz);
-		index[tot + 1] = end_start;
-
-		return reinterpret_cast<uint8_t*>(this) + end_start;
-	}
-
-	size_t Size() const
-	{
-		const uint16_t* data = reinterpret_cast<const uint16_t*>(this + 1);
-		return data[0];
-	}
-
-	void Clear()
-	{
-		uint16_t* data = reinterpret_cast<uint16_t*>(this + 1);
-		data[0] = 0;        // tot count
-		data[1] = BLOCK_SZ; // index 0 start
-	}
-
-	static const int BLOCK_SZ = 4096;
-	
-private:
-	OpsBlock* m_next;
-
-	friend class DisplayList;
-
-}; // DisplayOpsBlock
-
 DisplayList::DisplayList()
 	: m_ops_head(nullptr)
 	, m_ops_tail(nullptr)
 	, m_ops_sz(0)
+	, m_thread_idx(-1)
 {
 }
 
@@ -138,7 +59,7 @@ void DisplayList::Replay(int begin, int end)
 		return;
 	}
 
-	OpsBlock* ptr_b = m_ops_head;
+	DisplayOpBlock* ptr_b = m_ops_head;
 	assert(ptr_b);
 	int ptr_b_start = 0;
 	size_t ptr_b_sz = ptr_b->Size();
@@ -180,7 +101,7 @@ void DisplayList::AddOp(DisplayOp* op)
 	if (!m_ops_head) 
 	{
 		assert(!m_ops_tail);
-		OpsBlock* b = m_alloc.Alloc();
+		DisplayOpBlock* b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 		m_ops_head = m_ops_tail = b;
 		m_ops_head->AddOp(op);
 	} 
@@ -188,7 +109,7 @@ void DisplayList::AddOp(DisplayOp* op)
 	{
 		if (!m_ops_tail->AddOp(op)) 
 		{
-			OpsBlock* new_b = m_alloc.Alloc();
+			DisplayOpBlock* new_b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 			assert(m_ops_tail != new_b);
 			m_ops_tail->m_next = new_b;
 			m_ops_tail = new_b;
@@ -204,7 +125,7 @@ void* DisplayList::AddOp(size_t op_sz)
 	if (!m_ops_head)
 	{
 		assert(!m_ops_tail);
-		OpsBlock* b = m_alloc.Alloc();
+		DisplayOpBlock* b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 		m_ops_head = m_ops_tail = b;
 		ret = m_ops_head->AddOp(op_sz);
 	}
@@ -213,7 +134,7 @@ void* DisplayList::AddOp(size_t op_sz)
 		ret = m_ops_tail->AddOp(op_sz);
 		if (!ret)
 		{
-			OpsBlock* new_b = m_alloc.Alloc();
+			DisplayOpBlock* new_b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 			assert(m_ops_tail != new_b);
 			m_ops_tail->m_next = new_b;
 			m_ops_tail = new_b;
@@ -239,7 +160,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 	}
 	assert(begin >= 0 && begin < sz && end >= 0 && end <= sz && begin < end);
 
-	OpsBlock* src_b = src.m_ops_head;
+	DisplayOpBlock* src_b = src.m_ops_head;
 	assert(src_b);
 	int src_b_start = 0;
 	size_t src_b_sz = src_b->Size();
@@ -252,7 +173,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 
 	if (!m_ops_head) {
 		assert(!m_ops_tail);
-		OpsBlock* b = m_alloc.Alloc();
+		DisplayOpBlock* b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 		m_ops_head = m_ops_tail = b;
 	}
 	assert(m_ops_tail);
@@ -272,7 +193,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 
 		if (static_cast<size_t>(dst_space) < sz + sizeof(uint16_t))
 		{
-			OpsBlock* new_b = m_alloc.Alloc();
+			DisplayOpBlock* new_b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 
 			assert(m_ops_tail != new_b);
 			m_ops_tail->m_next = new_b;
@@ -311,93 +232,22 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 	}
 }
 
-void DisplayList::Clear(std::thread::id thread_id) 
+void DisplayList::Clear()
 {
-	int freelist_idx = m_alloc.QueryFreelistIdx(thread_id);
-	if (freelist_idx < 0) {
-		freelist_idx = m_alloc.m_freelists.size();
-		m_alloc.m_freelists.push_back(std::make_pair(thread_id, nullptr));
-	}
-	ClearOps(freelist_idx);
+	ClearOps();
 }
 
-void DisplayList::ClearOps(int freelist_idx)
+void DisplayList::ClearOps()
 {
-	OpsBlock* b = m_ops_head;
+	DisplayOpBlock* b = m_ops_head;
 	while (b) {
-		OpsBlock* next = b->m_next;
-		m_alloc.Free(freelist_idx, b);
+		DisplayOpBlock* next = b->m_next;
+		DisplayOpAllocator::Instance()->Free(m_thread_idx, b);
 		b = next;
 	}
 	m_ops_head = nullptr;
 	m_ops_tail = nullptr;
 	m_ops_sz = 0;
-}
-
-/************************************************************************/
-/* class DisplayList::Allocator                                         */
-/************************************************************************/
-
-DisplayList::OpsBlock* DisplayList::Allocator::Alloc()
-{
-	return Alloc(QueryFreelistIdx(std::this_thread::get_id()));
-}
-
-void DisplayList::Allocator::Free(DisplayList::OpsBlock* block)
-{
-	Free(QueryFreelistIdx(std::this_thread::get_id()), block);
-}
-
-DisplayList::OpsBlock* DisplayList::Allocator::Alloc(int freelist_idx)
-{
-	if (freelist_idx < 0) {
-		void* ptr = malloc(OpsBlock::BLOCK_SZ);
-		OpsBlock* ret = new (ptr) OpsBlock();
-		ret->m_next = nullptr;
-		return ret;
-	}
-
-	assert(freelist_idx >= 0 && freelist_idx < static_cast<int>(m_freelists.size()));
-
-	OpsBlock* ret = nullptr;
-
-	auto& freelist = m_freelists[freelist_idx].second;
-	if (freelist) {
-		ret = freelist;
-		freelist = ret->m_next;
-		ret->m_next = nullptr;
-	} else {
-		void* ptr = malloc(OpsBlock::BLOCK_SZ);
-		ret = new (ptr) OpsBlock();
-		ret->m_next = nullptr;
-	}
-
-	return ret;
-}
-
-void DisplayList::Allocator::Free(int freelist_idx, OpsBlock* block)
-{
-	block->Clear();
-
-	assert(freelist_idx >= 0 && freelist_idx < static_cast<int>(m_freelists.size()));
-	auto& freelist = m_freelists[freelist_idx].second;
-	if (freelist) {
-		assert(block != freelist);
-		block->m_next = freelist;
-	} else {
-		block->m_next = nullptr;
-	}
-	freelist = block;
-}
-
-int DisplayList::Allocator::QueryFreelistIdx(std::thread::id thread_id) const
-{
-	for (int i = 0, n = m_freelists.size(); i < n; ++i) {
-		if (thread_id == m_freelists[i].first) {
-			return i;
-		}
-	}
-	return -1;
 }
 
 }

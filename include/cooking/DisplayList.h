@@ -1,7 +1,6 @@
 #ifndef _COOKING_DISPLAY_LIST_H_
 #define _COOKING_DISPLAY_LIST_H_
 
-#include <thread>
 #include <atomic>
 #include <unordered_map>
 
@@ -12,6 +11,7 @@ namespace cooking
 {
 
 struct DisplayOp;
+class DisplayOpBlock;
 
 class DisplayList
 {
@@ -22,6 +22,8 @@ public:
 	DisplayList& operator = (const DisplayList&);
 	DisplayList& operator = (const DisplayList&&) = delete;
 	~DisplayList();
+
+	void SetThreadIdx(int idx) { m_thread_idx = idx; }
 
 	void Replay(int begin, int end);
 
@@ -34,36 +36,16 @@ public:
 
 	int Size() const { return m_ops_sz; }
 
-	void Clear(std::thread::id thread_id);
+	void Clear();
 
 private:
-	void ClearOps(int freelist_idx = -1);
-
-	class OpsBlock;
-	class Allocator
-	{
-	public:
-		OpsBlock* Alloc();
-		void Free(OpsBlock*);
-
-		OpsBlock* Alloc(int freelist_idx);
-		void Free(int freelist_idx, OpsBlock* block);
-
-	private:
-		int QueryFreelistIdx(std::thread::id thread_id) const;
-
-	private:
-		std::vector<std::pair<std::thread::id, OpsBlock*>> m_freelists;
-
-		friend class DisplayList;
-
-	}; // Allocator
+	void ClearOps();
 
 private:
-	OpsBlock *m_ops_head, *m_ops_tail;
+	DisplayOpBlock *m_ops_head, *m_ops_tail;
 	int m_ops_sz;
 
-	Allocator m_alloc;
+	int m_thread_idx;
 
 }; // DisplayList
 
