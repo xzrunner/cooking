@@ -24,6 +24,7 @@ public:
 	~DisplayList();
 
 	void SetThreadIdx(int idx) { m_thread_idx = idx; }
+	int  GetThreadIdx() const { return m_thread_idx; }
 
 	void Replay(int begin, int end);
 
