@@ -7,7 +7,6 @@ namespace cooking
 {
 
 class DisplayList;
-class RenderTask;
 
 /************************************************************************/
 /* status                                                               */
