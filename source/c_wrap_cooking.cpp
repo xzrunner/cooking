@@ -8,7 +8,7 @@ namespace cooking
 extern "C"
 void cooking_flush()
 {
-//	RenderTaskMgr::Instance()->Flush();
+//	DrawTaskMgr::Instance()->Flush();
 }
 
 }
