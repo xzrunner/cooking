@@ -1,6 +1,13 @@
 #ifndef _COOKING_DISPLAY_OP_H_
 #define _COOKING_DISPLAY_OP_H_
 
+// UpdateDTexC2Op
+#include <SM_Rect.h>
+
+// LoadGlyphOp
+#include <gtxt/gtxt_glyph.h>
+#include <gum/ResourceUID.h>
+
 #include <cstdint>
 #include <cstring>
 
@@ -13,6 +20,9 @@ namespace cooking
 	RENDER_OP_FN(RenderClearOp) \
 	\
 	RENDER_OP_FN(DrawQuadOp) \
+	\
+	RENDER_OP_FN(UpdateDTexC2Op) \
+	RENDER_OP_FN(LoadGlyphOp) \
 
 #define NULLPTR_OP_FN(Type) nullptr,
 
@@ -93,6 +103,49 @@ struct DrawQuadOp : DisplayOp
 	int   tex_id;
 
 }; // DrawQuadOp
+
+/************************************************************************/
+/* load                                                                 */
+/************************************************************************/
+
+struct UpdateDTexC2Op : DisplayOp
+{
+	UpdateDTexC2Op(uint32_t id, int tex_id,
+		int tex_w, int tex_h, const sm::i16_rect& region)
+		: SUPER(UpdateDTexC2Op)
+		, id(id)
+		, tex_id(tex_id)
+		, tex_w(tex_w)
+		, tex_h(tex_h)
+		, region(region)
+	{
+	}
+	
+	uint32_t id;
+
+	int tex_id;
+	int tex_w, tex_h;
+
+	sm::i16_rect region;
+
+}; // UpdateDTexC2Op
+
+struct LoadGlyphOp : DisplayOp
+{
+	LoadGlyphOp(int unicode, const gtxt_glyph_style* gs, gum::UID uid)
+		: SUPER(LoadGlyphOp)
+		, unicode(unicode)
+		, gs(*gs)
+		, uid(uid)
+	{
+	}
+
+	int unicode;
+	gtxt_glyph_style gs;
+
+	gum::UID uid;
+
+}; // LoadGlyphOp
 
 }
 

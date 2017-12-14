@@ -4,6 +4,8 @@
 #include <shaderlab/ShaderMgr.h>
 #include <shaderlab/FilterShader.h>
 #include <shaderlab/Sprite2Shader.h>
+#include <gum/DTexC2Strategy.h>
+#include <gum/DTex.h>
 
 #include <algorithm>
 
@@ -67,6 +69,32 @@ void DisplayOpFunc::ReplayDrawQuadOp(const DrawQuadOp& op)
 		shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
 		shader->DrawQuad(op.vertices, op.texcoords, op.tex_id);
 	}
+}
+
+/************************************************************************/
+/* load                                                                 */
+/************************************************************************/
+
+void DisplayOpFunc::ReplayUpdateDTexC2Op(const UpdateDTexC2Op& op)
+{
+	sl::ShaderMgr* mgr = sl::ShaderMgr::Instance();
+	sl::ShaderType type = mgr->GetShaderType();
+	if (gum::DTexC2Strategy::Instance()->OnC2QueryFail(
+		op.id, op.tex_id, op.tex_w, op.tex_h, op.region)) {
+		mgr->SetShader(type);
+	}
+}
+
+void DisplayOpFunc::ReplayLoadGlyphOp(const LoadGlyphOp& op)
+{
+	struct gtxt_glyph_layout layout;
+	uint32_t* bmp = gtxt_glyph_get_bitmap(op.unicode, &op.gs, &layout);
+	if (!bmp) {
+		return;
+	}
+	int w = static_cast<int>(layout.sizer.width);
+	int h = static_cast<int>(layout.sizer.height);
+	gum::DTex::Instance()->LoadGlyph(bmp, w, h, op.uid);
 }
 
 }
