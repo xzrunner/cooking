@@ -8,11 +8,15 @@ LOCAL_MODULE := cooking
 
 LOCAL_C_INCLUDES  := \
 	${CLIB_PATH} \
+	${SM_SRC_PATH} \
 	${MULTITASK_SRC_PATH}/include \
 	${COOKING_SRC_PATH}/include \
 	${UNIRENDER_SRC_PATH}/include \
 	${SHADERLAB_SRC_PATH}/include \
 	${MEMMGR_SRC_PATH}/include \
+	${GUM_SRC_PATH}/include \
+	${SPRITE2_SRC_PATH}/include \
+	${DTEX2_SRC_PATH}/include \
 
 LOCAL_SRC_FILES := \
 	$(subst $(LOCAL_PATH)/,,$(shell find $(LOCAL_PATH) -name "*.cpp" -print)) \
