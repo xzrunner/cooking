@@ -18,6 +18,7 @@ namespace cooking
 	RENDER_OP_FN(ChangeShaderOp) \
 	RENDER_OP_FN(FlushShaderOp) \
 	RENDER_OP_FN(RenderClearOp) \
+	RENDER_OP_FN(SetBlendOp) \
 	\
 	RENDER_OP_FN(DrawQuadOp) \
 	\
@@ -75,6 +76,17 @@ struct RenderClearOp : DisplayOp
 		, color(color) {}
 	uint32_t color;
 }; // RenderClearOp
+
+struct SetBlendOp : DisplayOp
+{
+	SetBlendOp(int src, int dst, int func)
+		: SUPER(SetBlendOp)
+		, src(src)
+		, dst(dst)
+		, func(func) {}
+	int src, dst;
+	int func;
+}; // SetBlendOp
 
 /************************************************************************/
 /* draw                                                                 */

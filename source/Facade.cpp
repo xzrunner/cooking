@@ -22,6 +22,11 @@ void flush_shader(DisplayList* dl)
 	new (dl->AddOp(sizeof(FlushShaderOp))) FlushShaderOp();
 }
 
+void set_blend(DisplayList* dl, int src, int dst, int func)
+{
+	new (dl->AddOp(sizeof(SetBlendOp))) SetBlendOp(src, dst, func);
+}
+
 /************************************************************************/
 /* draw                                                                 */
 /************************************************************************/

@@ -52,6 +52,13 @@ void DisplayOpFunc::ReplayRenderClearOp(const RenderClearOp& op)
 	sl::ShaderMgr::Instance()->GetContext()->Clear(op.color);
 }
 
+void DisplayOpFunc::ReplaySetBlendOp(const SetBlendOp& op)
+{
+	ur::RenderContext* rctx = sl::ShaderMgr::Instance()->GetContext();
+	rctx->SetBlend(op.src, op.dst);
+	rctx->SetBlendEquation(op.func);
+}
+
 /************************************************************************/
 /* draw                                                                 */
 /************************************************************************/

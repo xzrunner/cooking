@@ -22,6 +22,8 @@ void change_shader(DisplayList* dl, int shader);
 
 void flush_shader(DisplayList* dl);
 
+void set_blend(DisplayList* dl, int src, int dst, int func);
+
 /************************************************************************/
 /* draw                                                                 */
 /************************************************************************/
