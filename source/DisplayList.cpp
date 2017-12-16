@@ -16,6 +16,7 @@ DisplayList::DisplayList()
 	, m_ops_tail(nullptr)
 	, m_ops_sz(0)
 	, m_thread_idx(-1)
+	, m_st_shader(-1)
 {
 }
 
@@ -37,6 +38,9 @@ DisplayList& DisplayList::operator = (const DisplayList& dlist)
 	const_cast<DisplayList&>(dlist).m_ops_head = nullptr;
 	const_cast<DisplayList&>(dlist).m_ops_tail = nullptr;
 	const_cast<DisplayList&>(dlist).m_ops_sz = 0;
+
+	m_thread_idx = -1;
+	m_st_shader = -1;
 
 	return *this;
 }

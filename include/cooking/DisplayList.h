@@ -28,7 +28,7 @@ public:
 
 	void Replay(int begin, int end);
 
-	void AddOp(DisplayOp* op);
+	void  AddOp(DisplayOp* op);
 	void* AddOp(size_t op_sz);
 
 	void DeepCopyFrom(const DisplayList& src, int pos, int count);
@@ -39,6 +39,10 @@ public:
 
 	void Clear();
 
+	// status
+	void SetShaderType(int shader) { m_st_shader = shader; }
+	int  GetShaderType() const { return m_st_shader; }
+
 private:
 	void ClearOps();
 
@@ -47,6 +51,9 @@ private:
 	int m_ops_sz;
 
 	int m_thread_idx;
+
+	// status
+	int m_st_shader;
 
 }; // DisplayList
 

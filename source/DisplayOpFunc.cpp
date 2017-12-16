@@ -4,6 +4,9 @@
 #include <shaderlab/ShaderMgr.h>
 #include <shaderlab/FilterShader.h>
 #include <shaderlab/Sprite2Shader.h>
+#include <shaderlab/Sprite3Shader.h>
+#include <shaderlab/BlendShader.h>
+#include <shaderlab/MaskShader.h>
 #include <gum/DTexC2Strategy.h>
 #include <gum/DTex.h>
 
@@ -47,6 +50,11 @@ void DisplayOpFunc::ReplayFlushShaderOp(const FlushShaderOp& op)
 	sl::ShaderMgr::Instance()->FlushShader();
 }
 
+void DisplayOpFunc::ReplaySetRenderClearFlagOp(const SetRenderClearFlagOp& op)
+{
+	sl::ShaderMgr::Instance()->GetContext()->SetClearFlag(op.flag);
+}
+
 void DisplayOpFunc::ReplayRenderClearOp(const RenderClearOp& op)
 {
 	sl::ShaderMgr::Instance()->GetContext()->Clear(op.color);
@@ -59,23 +67,73 @@ void DisplayOpFunc::ReplaySetBlendOp(const SetBlendOp& op)
 	rctx->SetBlendEquation(op.func);
 }
 
+void DisplayOpFunc::ReplaySetShaderBlendModeOp(const SetShaderBlendModeOp& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::BlendShader*>(mgr->GetShader(sl::BLEND));
+	shader->SetMode(op.mode);
+}
+
+void DisplayOpFunc::ReplaySetShaderFilterModeOp(const SetShaderFilterModeOp& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::BlendShader*>(mgr->GetShader(sl::FILTER));
+	shader->SetMode(op.mode);
+}
+
+void DisplayOpFunc::ReplaySetColorSprite(const SetColorSprite& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::Sprite2Shader*>(mgr->GetShader(sl::SPRITE2));
+	shader->SetColor(op.col_mul, op.col_add);
+	shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
+}
+
+void DisplayOpFunc::ReplaySetColorSprite3(const SetColorSprite3& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::Sprite2Shader*>(mgr->GetShader(sl::SPRITE3));
+	shader->SetColor(op.col_mul, op.col_add);
+	shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
+}
+
+void DisplayOpFunc::ReplaySetColorFilter(const SetColorFilter& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::FilterShader*>(mgr->GetShader(sl::FILTER));
+	shader->SetColor(op.col_mul, op.col_add);
+}
+
 /************************************************************************/
 /* draw                                                                 */
 /************************************************************************/
 
-void DisplayOpFunc::ReplayDrawQuadOp(const DrawQuadOp& op)
+void DisplayOpFunc::ReplayDrawQuadSpriteOp(const DrawQuadSpriteOp& op)
 {
-	sl::ShaderMgr* mgr = sl::ShaderMgr::Instance();
-	if (mgr->GetShaderType() == sl::FILTER) {
-		sl::FilterShader* shader = static_cast<sl::FilterShader*>(mgr->GetShader(sl::FILTER));
-		shader->SetColor(op.col_mul, op.col_add);
-		shader->Draw(op.vertices, op.texcoords, op.tex_id);
-	} else if (mgr->GetShaderType() == sl::SPRITE2) {
-		sl::Sprite2Shader* shader = static_cast<sl::Sprite2Shader*>(mgr->GetShader(sl::SPRITE2));
-		shader->SetColor(op.col_mul, op.col_add);
-		shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
-		shader->DrawQuad(op.vertices, op.texcoords, op.tex_id);
-	}
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::Sprite2Shader*>(mgr->GetShader(sl::SPRITE2));
+	shader->DrawQuad(op.vertices, op.texcoords, op.tex_id);
+}
+
+void DisplayOpFunc::ReplayDrawQuadSprite3Op(const DrawQuadSprite3Op& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::Sprite3Shader*>(mgr->GetShader(sl::SPRITE3));
+	shader->Draw(op.vertices, op.texcoords, op.tex_id);
+}
+
+void DisplayOpFunc::ReplayDrawQuadFilterOp(const DrawQuadFilterOp& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::FilterShader*>(mgr->GetShader(sl::FILTER));
+	shader->Draw(op.vertices, op.texcoords, op.tex_id);
+}
+
+void DisplayOpFunc::ReplayDrawQuadMaskOp(const DrawQuadMaskOp& op)
+{
+	auto mgr = sl::ShaderMgr::Instance();
+	auto shader = static_cast<sl::MaskShader*>(mgr->GetShader(sl::MASK));
+	shader->Draw(op.positions, op.texcoords, op.texcoords_mask, op.tex, op.tex_mask);
 }
 
 /************************************************************************/
@@ -84,7 +142,7 @@ void DisplayOpFunc::ReplayDrawQuadOp(const DrawQuadOp& op)
 
 void DisplayOpFunc::ReplayUpdateDTexC2Op(const UpdateDTexC2Op& op)
 {
-	sl::ShaderMgr* mgr = sl::ShaderMgr::Instance();
+	auto mgr = sl::ShaderMgr::Instance();
 	sl::ShaderType type = mgr->GetShaderType();
 	if (gum::DTexC2Strategy::Instance()->OnC2QueryFail(
 		op.id, op.tex_id, op.tex_w, op.tex_h, op.region)) {
