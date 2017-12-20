@@ -4,10 +4,9 @@
 // update_dtex_c2
 #include <SM_Rect.h>
 
-// load_glyph
-#include <gtxt/gtxt_glyph.h>
-
 #include <stdint.h>
+
+struct gtxt_glyph_style;
 
 namespace cooking
 {
