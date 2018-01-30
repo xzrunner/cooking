@@ -6,7 +6,7 @@
 
 // LoadGlyphOp
 #include <gtxt/gtxt_glyph.h>
-#include <gum/ResourceUID.h>
+#include <s2loader/ResourceUID.h>
 
 #include <cstdint>
 #include <cstring>
@@ -269,7 +269,7 @@ struct UpdateDTexC2Op : DisplayOp
 
 struct LoadGlyphOp : DisplayOp
 {
-	LoadGlyphOp(int unicode, const gtxt_glyph_style* gs, gum::UID uid)
+	LoadGlyphOp(int unicode, const gtxt_glyph_style* gs, s2loader::UID uid)
 		: SUPER(LoadGlyphOp)
 		, unicode(unicode)
 		, gs(*gs)
@@ -280,7 +280,7 @@ struct LoadGlyphOp : DisplayOp
 	int unicode;
 	gtxt_glyph_style gs;
 
-	gum::UID uid;
+	s2loader::UID uid;
 
 }; // LoadGlyphOp
 
