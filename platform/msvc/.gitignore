@@ -1,0 +1,5 @@
+cooking/
+projects/*
+
+!projects/cooking.vcxproj
+!projects/cooking.vcxproj.filters
