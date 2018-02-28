@@ -1,6 +1,7 @@
 #include "cooking/DisplayOpFunc.h"
 
 #include <unirender/RenderContext.h>
+#include <unirender/Blackboard.h>
 #include <shaderlab/Blackboard.h>
 #include <shaderlab/ShaderMgr.h>
 #include <shaderlab/RenderContext.h>
@@ -54,19 +55,19 @@ void DisplayOpFunc::ReplayFlushShaderOp(const FlushShaderOp& op)
 
 void DisplayOpFunc::ReplaySetRenderClearFlagOp(const SetRenderClearFlagOp& op)
 {
-	auto& ur_rc = sl::Blackboard::Instance()->GetRenderContext().GetContext();
+	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
 	ur_rc.SetClearFlag(op.flag);
 }
 
 void DisplayOpFunc::ReplayRenderClearOp(const RenderClearOp& op)
 {
-	auto& ur_rc = sl::Blackboard::Instance()->GetRenderContext().GetContext();
+	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
 	ur_rc.Clear(op.color);
 }
 
 void DisplayOpFunc::ReplaySetBlendOp(const SetBlendOp& op)
 {
-	auto& ur_rc = sl::Blackboard::Instance()->GetRenderContext().GetContext();
+	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
 	ur_rc.SetBlend(op.src, op.dst);
 	ur_rc.SetBlendEquation(op.func);
 }
