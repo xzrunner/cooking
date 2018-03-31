@@ -6,7 +6,7 @@
 
 // LoadGlyphOp
 #include <gtxt/gtxt_glyph.h>
-#include <s2loader/ResourceUID.h>
+//#include <s2loader/ResourceUID.h>
 
 #include <cstdint>
 #include <cstring>
@@ -32,7 +32,7 @@ namespace cooking
 	RENDER_OP_FN(DrawQuadMaskOp) \
 	\
 	RENDER_OP_FN(UpdateDTexC2Op) \
-	RENDER_OP_FN(LoadGlyphOp) \
+	//RENDER_OP_FN(LoadGlyphOp) \
 
 #define NULLPTR_OP_FN(Type) nullptr,
 
@@ -267,22 +267,22 @@ struct UpdateDTexC2Op : DisplayOp
 
 }; // UpdateDTexC2Op
 
-struct LoadGlyphOp : DisplayOp
-{
-	LoadGlyphOp(int unicode, const gtxt_glyph_style* gs, s2loader::UID uid)
-		: SUPER(LoadGlyphOp)
-		, unicode(unicode)
-		, gs(*gs)
-		, uid(uid)
-	{
-	}
-
-	int unicode;
-	gtxt_glyph_style gs;
-
-	s2loader::UID uid;
-
-}; // LoadGlyphOp
+//struct LoadGlyphOp : DisplayOp
+//{
+//	LoadGlyphOp(int unicode, const gtxt_glyph_style* gs, s2loader::UID uid)
+//		: SUPER(LoadGlyphOp)
+//		, unicode(unicode)
+//		, gs(*gs)
+//		, uid(uid)
+//	{
+//	}
+//
+//	int unicode;
+//	gtxt_glyph_style gs;
+//
+//	s2loader::UID uid;
+//
+//}; // LoadGlyphOp
 
 }
 

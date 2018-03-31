@@ -10,8 +10,8 @@
 #include <shaderlab/Sprite3Shader.h>
 #include <shaderlab/BlendShader.h>
 #include <shaderlab/MaskShader.h>
-#include <gum/DTexC2Strategy.h>
-#include <gum/DTex.h>
+//#include <gum/DTexC2Strategy.h>
+//#include <gum/DTex.h>
 
 #include <algorithm>
 
@@ -147,24 +147,24 @@ void DisplayOpFunc::ReplayDrawQuadMaskOp(const DrawQuadMaskOp& op)
 
 void DisplayOpFunc::ReplayUpdateDTexC2Op(const UpdateDTexC2Op& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	sl::ShaderType type = shader_mgr.GetShaderType();
-	if (gum::DTexC2Strategy::Instance()->OnC2QueryFail(
-		op.id, op.tex_id, op.tex_w, op.tex_h, op.region)) {
-		shader_mgr.SetShader(type);
-	}
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//sl::ShaderType type = shader_mgr.GetShaderType();
+	//if (gum::DTexC2Strategy::Instance()->OnC2QueryFail(
+	//	op.id, op.tex_id, op.tex_w, op.tex_h, op.region)) {
+	//	shader_mgr.SetShader(type);
+	//}
 }
 
-void DisplayOpFunc::ReplayLoadGlyphOp(const LoadGlyphOp& op)
-{
-	struct gtxt_glyph_layout layout;
-	uint32_t* bmp = gtxt_glyph_get_bitmap(op.unicode, &op.gs, &layout);
-	if (!bmp) {
-		return;
-	}
-	int w = static_cast<int>(layout.sizer.width);
-	int h = static_cast<int>(layout.sizer.height);
-	gum::DTex::Instance()->LoadGlyph(bmp, w, h, op.uid);
-}
+//void DisplayOpFunc::ReplayLoadGlyphOp(const LoadGlyphOp& op)
+//{
+//	struct gtxt_glyph_layout layout;
+//	uint32_t* bmp = gtxt_glyph_get_bitmap(op.unicode, &op.gs, &layout);
+//	if (!bmp) {
+//		return;
+//	}
+//	int w = static_cast<int>(layout.sizer.width);
+//	int h = static_cast<int>(layout.sizer.height);
+//	gum::DTex::Instance()->LoadGlyph(bmp, w, h, op.uid);
+//}
 
 }

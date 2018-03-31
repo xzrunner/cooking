@@ -104,10 +104,10 @@ void update_dtex_c2(DisplayList* dl, uint32_t id, int tex_id, int tex_w, int tex
 		id, tex_id, tex_w, tex_h, region);
 }
 
-void load_glyph(DisplayList* dl, int unicode, const gtxt_glyph_style* gs, uint64_t uid)
-{
-	new (dl->AddOp(sizeof(LoadGlyphOp))) LoadGlyphOp(
-		unicode, gs, uid);
-}
+//void load_glyph(DisplayList* dl, int unicode, const gtxt_glyph_style* gs, uint64_t uid)
+//{
+//	new (dl->AddOp(sizeof(LoadGlyphOp))) LoadGlyphOp(
+//		unicode, gs, uid);
+//}
 
 }
