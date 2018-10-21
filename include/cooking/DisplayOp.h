@@ -257,7 +257,7 @@ struct UpdateDTexC2Op : DisplayOp
 		, region(region)
 	{
 	}
-	
+
 	uint32_t id;
 
 	int tex_id;

@@ -32,7 +32,7 @@ public:
 	void* AddOp(size_t op_sz);
 
 	void DeepCopyFrom(const DisplayList& src, int pos, int count);
-	
+
 	bool Empty() const { return m_ops_sz == 0; }
 
 	int Size() const { return m_ops_sz; }

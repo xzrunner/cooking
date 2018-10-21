@@ -16,7 +16,7 @@ public:
 private:
 #define X(Type) static void Replay##Type(const Type& op);
 	MAP_OPS_BASED_ON_TYPE(X)
-#undef X	
+#undef X
 
 }; // DisplayOpFunc
 

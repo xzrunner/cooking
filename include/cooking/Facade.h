@@ -29,7 +29,7 @@ void set_blend(DisplayList* dl, int src, int dst, int func);
 void set_shader_blend_mode(DisplayList* dl, int mode);
 void set_shader_filter_mode(DisplayList* dl, int mode);
 
-void set_color_sprite(DisplayList* dl, uint32_t col_mul, uint32_t col_add, 
+void set_color_sprite(DisplayList* dl, uint32_t col_mul, uint32_t col_add,
 	uint32_t col_rmap, uint32_t col_gmap, uint32_t col_bmap);
 void set_color_sprite3(DisplayList* dl, uint32_t col_mul, uint32_t col_add,
 	uint32_t col_rmap, uint32_t col_gmap, uint32_t col_bmap);

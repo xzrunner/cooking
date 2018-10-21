@@ -32,4 +32,4 @@ private:
 
 }
 
-#endif // _COOKING_DISPLAY_OP_BLOCK_H_	
+#endif // _COOKING_DISPLAY_OP_BLOCK_H_

@@ -6,7 +6,7 @@ namespace cooking
 {
 
 static Callback::Funs FUNS;
-	
+
 void Callback::RegisterCallback(const Callback::Funs& funs)
 {
 	FUNS = funs;

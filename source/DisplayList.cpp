@@ -102,16 +102,16 @@ void DisplayList::Replay(int begin, int end)
 
 void DisplayList::AddOp(DisplayOp* op)
 {
-	if (!m_ops_head) 
+	if (!m_ops_head)
 	{
 		assert(!m_ops_tail);
 		DisplayOpBlock* b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 		m_ops_head = m_ops_tail = b;
 		m_ops_head->AddOp(op);
-	} 
-	else 
+	}
+	else
 	{
-		if (!m_ops_tail->AddOp(op)) 
+		if (!m_ops_tail->AddOp(op))
 		{
 			DisplayOpBlock* new_b = DisplayOpAllocator::Instance()->Alloc(m_thread_idx);
 			assert(m_ops_tail != new_b);
@@ -201,7 +201,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 
 			assert(m_ops_tail != new_b);
 			m_ops_tail->m_next = new_b;
-			m_ops_tail = new_b;	
+			m_ops_tail = new_b;
 
 			dst_data = reinterpret_cast<uint16_t*>(m_ops_tail + 1);
 			dst_tot = dst_data[0];
@@ -212,7 +212,7 @@ void DisplayList::DeepCopyFrom(const DisplayList& src, int pos, int count)
 		}
 
 		assert(static_cast<size_t>(dst_space) >= sz + sizeof(uint16_t));
-		
+
 		++dst_data[0];
 		dst_tot = dst_data[0];
 		dst_end_start -= static_cast<uint16_t>(sz);
