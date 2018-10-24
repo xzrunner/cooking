@@ -2,14 +2,6 @@
 
 #include <unirender/RenderContext.h>
 #include <unirender/Blackboard.h>
-#include <shaderlab/Blackboard.h>
-#include <shaderlab/ShaderMgr.h>
-#include <shaderlab/RenderContext.h>
-#include <shaderlab/FilterShader.h>
-#include <shaderlab/Sprite2Shader.h>
-#include <shaderlab/Sprite3Shader.h>
-#include <shaderlab/BlendShader.h>
-#include <shaderlab/MaskShader.h>
 //#include <gum/DTexC2Strategy.h>
 //#include <gum/DTex.h>
 
@@ -45,12 +37,12 @@ size_t DisplayOpFunc::Size(const DisplayOp& op)
 
 void DisplayOpFunc::ReplayChangeShaderOp(const ChangeShaderOp& op)
 {
-	sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr().SetShader(sl::ShaderType(op.shader));
+//	sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr().SetShader(sl::ShaderType(op.shader));
 }
 
 void DisplayOpFunc::ReplayFlushShaderOp(const FlushShaderOp& op)
 {
-	sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr().FlushShader();
+//	sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr().FlushShader();
 }
 
 void DisplayOpFunc::ReplaySetRenderClearFlagOp(const SetRenderClearFlagOp& op)
@@ -74,39 +66,39 @@ void DisplayOpFunc::ReplaySetBlendOp(const SetBlendOp& op)
 
 void DisplayOpFunc::ReplaySetShaderBlendModeOp(const SetShaderBlendModeOp& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::BlendShader*>(shader_mgr.GetShader(sl::BLEND));
-	shader->SetMode(op.mode);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::BlendShader*>(shader_mgr.GetShader(sl::BLEND));
+	//shader->SetMode(op.mode);
 }
 
 void DisplayOpFunc::ReplaySetShaderFilterModeOp(const SetShaderFilterModeOp& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::BlendShader*>(shader_mgr.GetShader(sl::FILTER));
-	shader->SetMode(op.mode);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::BlendShader*>(shader_mgr.GetShader(sl::FILTER));
+	//shader->SetMode(op.mode);
 }
 
 void DisplayOpFunc::ReplaySetColorSprite(const SetColorSprite& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader(sl::SPRITE2));
-	shader->SetColor(op.col_mul, op.col_add);
-	shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader(sl::SPRITE2));
+	//shader->SetColor(op.col_mul, op.col_add);
+	//shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
 }
 
 void DisplayOpFunc::ReplaySetColorSprite3(const SetColorSprite3& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader(sl::SPRITE3));
-	shader->SetColor(op.col_mul, op.col_add);
-	shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader(sl::SPRITE3));
+	//shader->SetColor(op.col_mul, op.col_add);
+	//shader->SetColorMap(op.col_rmap, op.col_gmap, op.col_bmap);
 }
 
 void DisplayOpFunc::ReplaySetColorFilter(const SetColorFilter& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::FilterShader*>(shader_mgr.GetShader(sl::FILTER));
-	shader->SetColor(op.col_mul, op.col_add);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::FilterShader*>(shader_mgr.GetShader(sl::FILTER));
+	//shader->SetColor(op.col_mul, op.col_add);
 }
 
 /************************************************************************/
@@ -115,30 +107,30 @@ void DisplayOpFunc::ReplaySetColorFilter(const SetColorFilter& op)
 
 void DisplayOpFunc::ReplayDrawQuadSpriteOp(const DrawQuadSpriteOp& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader(sl::SPRITE2));
-	shader->DrawQuad(op.vertices, op.texcoords, op.tex_id);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader(sl::SPRITE2));
+	//shader->DrawQuad(op.vertices, op.texcoords, op.tex_id);
 }
 
 void DisplayOpFunc::ReplayDrawQuadSprite3Op(const DrawQuadSprite3Op& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::Sprite3Shader*>(shader_mgr.GetShader(sl::SPRITE3));
-	shader->Draw(op.vertices, op.texcoords, op.tex_id);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::Sprite3Shader*>(shader_mgr.GetShader(sl::SPRITE3));
+	//shader->Draw(op.vertices, op.texcoords, op.tex_id);
 }
 
 void DisplayOpFunc::ReplayDrawQuadFilterOp(const DrawQuadFilterOp& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::FilterShader*>(shader_mgr.GetShader(sl::FILTER));
-	shader->Draw(op.vertices, op.texcoords, op.tex_id);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::FilterShader*>(shader_mgr.GetShader(sl::FILTER));
+	//shader->Draw(op.vertices, op.texcoords, op.tex_id);
 }
 
 void DisplayOpFunc::ReplayDrawQuadMaskOp(const DrawQuadMaskOp& op)
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = static_cast<sl::MaskShader*>(shader_mgr.GetShader(sl::MASK));
-	shader->Draw(op.positions, op.texcoords, op.texcoords_mask, op.tex, op.tex_mask);
+	//auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
+	//auto shader = static_cast<sl::MaskShader*>(shader_mgr.GetShader(sl::MASK));
+	//shader->Draw(op.positions, op.texcoords, op.texcoords_mask, op.tex, op.tex_mask);
 }
 
 /************************************************************************/
