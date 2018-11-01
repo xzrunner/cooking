@@ -54,7 +54,8 @@ void DisplayOpFunc::ReplaySetRenderClearFlagOp(const SetRenderClearFlagOp& op)
 void DisplayOpFunc::ReplayRenderClearOp(const RenderClearOp& op)
 {
 	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	ur_rc.Clear(op.color);
+	ur_rc.SetClearColor(op.color);
+	ur_rc.Clear();
 }
 
 void DisplayOpFunc::ReplaySetBlendOp(const SetBlendOp& op)
