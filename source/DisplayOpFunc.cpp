@@ -1,7 +1,5 @@
 #include "cooking/DisplayOpFunc.h"
 
-#include <unirender/RenderContext.h>
-#include <unirender/Blackboard.h>
 //#include <gum/DTexC2Strategy.h>
 //#include <gum/DTex.h>
 
@@ -47,22 +45,22 @@ void DisplayOpFunc::ReplayFlushShaderOp(const FlushShaderOp& op)
 
 void DisplayOpFunc::ReplaySetRenderClearFlagOp(const SetRenderClearFlagOp& op)
 {
-	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	ur_rc.SetClearFlag(op.flag);
+	//auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
+	//ur_rc.SetClearFlag(op.flag);
 }
 
 void DisplayOpFunc::ReplayRenderClearOp(const RenderClearOp& op)
 {
-	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	ur_rc.SetClearColor(op.color);
-	ur_rc.Clear();
+	//auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
+	//ur_rc.SetClearColor(op.color);
+	//ur_rc.Clear();
 }
 
 void DisplayOpFunc::ReplaySetBlendOp(const SetBlendOp& op)
 {
-	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	ur_rc.SetBlend(op.src, op.dst);
-	ur_rc.SetBlendEquation(op.func);
+	//auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
+	//ur_rc.SetBlend(op.src, op.dst);
+	//ur_rc.SetBlendEquation(op.func);
 }
 
 void DisplayOpFunc::ReplaySetShaderBlendModeOp(const SetShaderBlendModeOp& op)
